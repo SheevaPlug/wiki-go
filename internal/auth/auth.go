@@ -3,9 +3,11 @@ package auth
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
 	"encoding/base64"
 	"encoding/hex"
 	"log"
+	// mathrand "math/rand"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -244,7 +246,11 @@ func ValidateCredentials(username, password string, cfg *config.Config) (bool, s
 			return true, user.Role, user.Groups
 		}
 	}
-	return false, "", nil
+	// we have not found the user, but we waste time so an
+	// attacker cannot verify user accounts
+	_ = crypto.CheckPasswordHash(password,
+		fmt.Sprintf("$2a$%d$LJDs1P5fG/IoUKJKvjK81Oi2Ex5qcKt4z57A78/V6nS2aUW2POL76", cfg.Security.PasswordStrength))
+ 	return false, "", nil
 }
 
 // CheckAuth verifies if the user is authenticated and returns their session
